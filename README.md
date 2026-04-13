@@ -97,7 +97,16 @@ O workflow já está em [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.ym
   - `SONAR_TOKEN`: token de acesso
 
 - **SAST (Semgrep)**
-  - `SEMGREP_APP_TOKEN`: token do Semgrep (opcional). Se não informar, o pipeline roda Semgrep em modo OSS com regras `p/ci`.
+  - Por padrão o pipeline roda Semgrep em modo OSS com regras `p/ci`.
+  - Para usar Semgrep Cloud/App, crie o secret `SEMGREP_APP_TOKEN` e habilite a variável `USE_SEMGREP_CLOUD=true`.
+
+#### Variáveis do repositório (Actions Variables)
+
+Em **Settings → Secrets and variables → Actions → Variables**, você pode controlar recursos opcionais:
+
+- `ENABLE_SONAR=true` para habilitar Sonar (e então preencher os secrets `SONAR_*`)
+- `USE_SEMGREP_CLOUD=true` para usar Semgrep Cloud (e então preencher `SEMGREP_APP_TOKEN`)
+- `ENABLE_PRODUCTION=true` para habilitar os jobs de aprovação manual + deploy em produção
 
 #### Aprovação manual (produção)
 
