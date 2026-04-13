@@ -50,6 +50,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: SAST (Semgrep)
+        if: ${{ secrets.SEMGREP_APP_TOKEN != '' }}
         uses: returntocorp/semgrep-action@v1
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
@@ -139,7 +140,7 @@ jobs:
     name: Aprovação Manual
     runs-on: ubuntu-latest
     needs: dast
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' && secrets.RENDER_PRODUCTION_DEPLOY_HOOK != '' }}
     environment: production
 
     steps:
