@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm install
 
+      - name: Build
+        run: npm run build --if-present
+
       - name: Lint
         run: npm run lint --if-present
 
@@ -47,10 +50,18 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: SAST (Semgrep)
-        if: ${{ secrets.SEMGREP_APP_TOKEN != '' }}
         uses: returntocorp/semgrep-action@v1
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: SAST (Semgrep OSS fallback)
+        if: ${{ secrets.SEMGREP_APP_TOKEN == '' }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install semgrep
+          semgrep --version
+          # Regras prontas do Semgrep Registry
+          semgrep --config=p/ci --error
 
   container:
     name: Container

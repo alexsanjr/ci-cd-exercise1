@@ -7,11 +7,11 @@ Pré-requisitos
 - Node instalado
 
 Passo a passo
+- cd api-js
 - npm i
 - Configurar o Banco de dados
-  - Configurar arquivo `.env` (base: `.env.example`)
-  - Windows (PowerShell/cmd): `copy .env.example .env`
-  - Linux/macOS (bash): `cp .env.example .env`
+  - Arquivo database.js
+  - Configurar arquivo .env
 - node index.js
 
 A API estará disponível em:
@@ -50,27 +50,6 @@ Você deverá modificar a aplicação para fazer acesso ao banco de dados. Crie 
   - O banco PostgreSQL
   - O PGAdmin
 
-### Como rodar
-
-- (Recomendado) crie o `.env` a partir do exemplo e ajuste valores:
-  - Windows: `copy .env.example .env`
-  - Linux/macOS: `cp .env.example .env`
-- Suba os serviços:
-  - `docker compose up -d --build`
-
-URLs:
-- API: http://localhost:3000
-- PGAdmin: http://localhost:5050
-
-Credenciais PGAdmin (padrão, pode sobrescrever via `.env`):
-- Email: `admin@admin.com`
-- Senha: `admin`
-
-Para conectar no Postgres via PGAdmin:
-- Host: `postgres`
-- Porta: `5432`
-- Database/User/Password: os mesmos do `.env`
-
 ## ⚙️ (DESAFIO) CI/CD
 
 Crie um CI/CD no github actions com as seguintes etapas
@@ -95,32 +74,40 @@ Crie um CI/CD no github actions com as seguintes etapas
    - Criação da aprovação manual
    - Deploy em produção
 
-### Implementação
+### Como configurar no GitHub Actions
 
-O workflow está em `.github/workflows/ci-cd.yml` e roda em `pull_request` e em `push` para `main`.
+O workflow já está em [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml).
 
-### Secrets necessários (Settings → Secrets and variables → Actions)
+#### Secrets/variáveis
 
-DockerHub (para push):
-- `DOCKERHUB_USERNAME`
-- `DOCKERHUB_TOKEN`
+- **DockerHub** (para push da imagem)
+  - `DOCKERHUB_USERNAME`: seu usuário do DockerHub
+  - `DOCKERHUB_TOKEN`: um Access Token do DockerHub (Settings → Security → New Access Token)
 
-SonarQube/SonarCloud (opcional; o job só roda se existir `SONAR_TOKEN`):
-- `SONAR_TOKEN`
-- `SONAR_HOST_URL` (ex.: `https://sonarcloud.io` ou sua URL do SonarQube)
-- `SONAR_PROJECT_KEY`
+- **Render (deploy hooks)**
+  - `RENDER_STAGING_DEPLOY_HOOK`: Deploy Hook URL do serviço de homologação
+  - `RENDER_PRODUCTION_DEPLOY_HOOK`: Deploy Hook URL do serviço de produção
 
-Semgrep (opcional; o job só roda se existir `SEMGREP_APP_TOKEN`):
-- `SEMGREP_APP_TOKEN`
+- **DAST (OWASP ZAP)**
+  - `STAGING_URL`: URL pública da homologação (ex.: `https://seu-app-staging.onrender.com`)
 
-Render (CD):
-- `RENDER_STAGING_DEPLOY_HOOK`
-- `RENDER_PRODUCTION_DEPLOY_HOOK`
+- **SonarQube/SonarCloud** (opcional)
+  - `SONAR_HOST_URL`: ex.: `https://sonarcloud.io` (ou a URL do seu SonarQube)
+  - `SONAR_PROJECT_KEY`: key do projeto
+  - `SONAR_TOKEN`: token de acesso
 
-DAST (ZAP) em homologação:
-- `STAGING_URL` (ex.: `https://sua-app-hml.onrender.com`)
+- **SAST (Semgrep)**
+  - `SEMGREP_APP_TOKEN`: token do Semgrep (opcional). Se não informar, o pipeline roda Semgrep em modo OSS com regras `p/ci`.
 
-### Aprovação manual
+#### Aprovação manual (produção)
 
-A etapa "Aprovação Manual" usa `environment: production`.
-Para exigir aprovação, configure o ambiente `production` no GitHub (Settings → Environments) com required reviewers.
+O job “Aprovação Manual” usa `environment: production`. Para realmente pausar aguardando aprovação:
+
+- Vá em **Settings → Environments → New environment**
+- Crie o ambiente `production`
+- Marque **Required reviewers** e selecione quem aprova
+
+#### Como o pipeline roda
+
+- Em **PR**: executa CI + Container (build/scan), mas não faz push nem deploy.
+- Em **push na main**: executa CI + Container (push no DockerHub) + CD (Render staging → ZAP → aprovação manual → Render produção).

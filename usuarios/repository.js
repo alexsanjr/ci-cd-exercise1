@@ -1,6 +1,5 @@
 import { Usuario } from '../modelIndex.js';
 import { Interesse } from '../modelIndex.js';
-import Op from 'sequelize';
 
 export async function listar() {
     return await Usuario.findAll({

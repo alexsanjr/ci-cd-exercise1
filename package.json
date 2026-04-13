@@ -6,12 +6,19 @@
     "sequelize": "^6.37.8",
     "dotenv": "^16.4.5"
   },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  },
   "name": "testando-knex",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node --check index.js",
+    "lint": "eslint .",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "node --test test/unit",
+    "test:integration": "node --test test/integration"
   },
   "keywords": [],
   "author": "",
