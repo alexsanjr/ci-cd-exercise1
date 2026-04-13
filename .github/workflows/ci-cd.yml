@@ -86,7 +86,7 @@ jobs:
           tags: local/${{ github.event.repository.name }}:ci
 
       - name: Scan vulnerabilities (Trivy)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: image
           image-ref: local/${{ github.event.repository.name }}:ci
